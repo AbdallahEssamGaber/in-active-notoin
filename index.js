@@ -14,7 +14,7 @@ let theChange = [];
 
 app.get("/", (req, res) => {
   setInitialNumberOfTasks().then(() => {
-    setInterval(findNewDoingTasks, 1050);
+    setInterval(findNewDoingTasks, 3000);
   });
   res.send("Express on Render");
 });
