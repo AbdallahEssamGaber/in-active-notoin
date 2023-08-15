@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+var cron = require("node-cron");
 const { Client } = require("@notionhq/client");
 dotenv.config();
 
@@ -13,9 +14,11 @@ let numDoing = 0;
 let theChange = [];
 
 app.get("/", (req, res) => {
-  setInitialNumberOfTasks().then(() => {
-    setInterval(findNewDoingTasks, 3000);
+  setInitialNumberOfTasks();
+  cron.schedule("*/3 * * * * *", () => {
+    findNewDoingTasks();
   });
+
   res.send("Express on Render");
 });
 
