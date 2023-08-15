@@ -13,8 +13,12 @@ const headingBlockId = process.env.NOTION_HEADING_ACTIVE_ID;
 let numDoing = 0;
 let theChange = [];
 
-cron.schedule("*/3 * * * * *", () => {
-  findNewDoingTasks();
+app.get("/", (req, res) => {
+  cron.schedule("*/3 * * * * *", () => {
+    findNewDoingTasks();
+  });
+
+  res.status(200).json("Welcome, your app is working well");
 });
 
 async function getNumberOfDoingTasks() {
@@ -64,3 +68,6 @@ async function getHeadingState() {
 app.listen(port, () => {
   console.log(`Running on port ${port}.`);
 });
+
+// Export the Express API
+module.exports = app;
