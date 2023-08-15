@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
     findNewDoingTasks();
   });
 
-  res.status(200).json("Welcome, your app is working well..Hopefully");
+  res.status(200).json("Welcome, your app is working well");
 });
 
 async function getNumberOfDoingTasks() {
