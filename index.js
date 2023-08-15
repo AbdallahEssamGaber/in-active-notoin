@@ -13,18 +13,9 @@ const headingBlockId = process.env.NOTION_HEADING_ACTIVE_ID;
 let numDoing = 0;
 let theChange = [];
 
-app.get("/", (req, res) => {
-  setInitialNumberOfTasks();
-  cron.schedule("*/3 * * * * *", () => {
-    findNewDoingTasks();
-  });
-
-  res.send("Express on Render");
+cron.schedule("*/3 * * * * *", () => {
+  findNewDoingTasks();
 });
-
-async function setInitialNumberOfTasks() {
-  numDoing = await getNumberOfDoingTasks();
-}
 
 async function getNumberOfDoingTasks() {
   try {
@@ -52,8 +43,8 @@ async function findNewDoingTasks() {
     : (theChange = ["active", "green_background"]);
 
   if (theChange[0] != headingState) {
-    const res = await updateHeading(theChange);
-    console.log(res);
+    console.log("Needs update");
+    console.log("has to be " + theChange[0] + " w " + theChange[1]);
   }
   num = numDoing;
 }
@@ -65,31 +56,6 @@ async function getHeadingState() {
     });
 
     return response.paragraph.rich_text[0].text.content;
-  } catch (error) {
-    console.error(error.body);
-  }
-}
-
-async function updateHeading(prop) {
-  try {
-    const response = await notion.blocks.update({
-      block_id: headingBlockId,
-      type: "paragraph",
-      paragraph: {
-        rich_text: [
-          {
-            type: "text",
-            text: { content: prop[0] },
-            annotations: {
-              italic: true,
-            },
-            plain_text: "active",
-          },
-        ],
-        color: prop[1],
-      },
-    });
-    return response;
   } catch (error) {
     console.error(error.body);
   }
