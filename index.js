@@ -1,7 +1,10 @@
+const express = require("express");
 const dotenv = require("dotenv");
 const { Client } = require("@notionhq/client");
 dotenv.config();
 
+const app = express();
+const port = process.env.PORT || 3000;
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const databaseId = process.env.NOTION_DATABASE_ID;
 const headingBlockId = process.env.NOTION_HEADING_ACTIVE_ID;
@@ -9,9 +12,15 @@ const headingBlockId = process.env.NOTION_HEADING_ACTIVE_ID;
 let numDoing = 0;
 let theChange = [];
 
+app.get("/", (req, res) => {
+  setInitialNumberOfTasks().then(() => {
+    setInterval(findNewDoingTasks, 3000);
+  });
+  res.send("Express on Render");
+});
+
 async function setInitialNumberOfTasks() {
   numDoing = await getNumberOfDoingTasks();
-  console.log(numDoing);
 }
 
 async function getNumberOfDoingTasks() {
@@ -87,6 +96,6 @@ async function updateHeading(prop) {
   }
 }
 
-setInitialNumberOfTasks().then(() => {
-  setInterval(findNewDoingTasks, 3000);
+app.listen(port, () => {
+  console.log(`Running on port ${port}.`);
 });
