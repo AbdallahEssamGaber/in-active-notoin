@@ -1,10 +1,7 @@
-const express = require("express");
 const dotenv = require("dotenv");
 const { Client } = require("@notionhq/client");
 dotenv.config();
 
-const app = express();
-const port = process.env.PORT || 3000;
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const databaseId = process.env.NOTION_DATABASE_ID;
 const headingBlockId = process.env.NOTION_HEADING_ACTIVE_ID;
@@ -12,15 +9,9 @@ const headingBlockId = process.env.NOTION_HEADING_ACTIVE_ID;
 let numDoing = 0;
 let theChange = [];
 
-app.get("/", (req, res) => {
-  setInitialNumberOfTasks().then(() => {
-    setInterval(findNewDoingTasks, 3000);
-  });
-  res.send("Express on Render");
-});
-
 async function setInitialNumberOfTasks() {
   numDoing = await getNumberOfDoingTasks();
+  console.log(numDoing);
 }
 
 async function getNumberOfDoingTasks() {
@@ -34,8 +25,12 @@ async function getNumberOfDoingTasks() {
         },
       },
     });
-    const results = response.results.length;
-    return results;
+
+    //Filter only the ones in the top and Really. Doing.
+    const results = response.results.filter(
+      (item) => item.properties["Sub-item"].relation.length == 0
+    );
+    return results.length;
   } catch (error) {
     console.error(error.body);
   }
@@ -44,7 +39,7 @@ async function getNumberOfDoingTasks() {
 async function findNewDoingTasks() {
   let num = await getNumberOfDoingTasks();
   const headingState = await getHeadingState();
-  num <= 1
+  num < 1
     ? (theChange = ["inactive", "red_background"])
     : (theChange = ["active", "green_background"]);
 
@@ -92,6 +87,6 @@ async function updateHeading(prop) {
   }
 }
 
-app.listen(port, () => {
-  console.log(`Running on port ${port}.`);
+setInitialNumberOfTasks().then(() => {
+  setInterval(findNewDoingTasks, 3000);
 });
